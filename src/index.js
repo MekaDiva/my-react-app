@@ -1,6 +1,6 @@
 import App from './app';
 import gsap from 'gsap';
-import config from 'config';
+import config from './config';
 
 export default class Playable {
 
