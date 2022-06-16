@@ -4,6 +4,7 @@ import Stats from '../lib/stats.module';
 import { gsap } from 'gsap';
 import assets from './assets';
 import config from '../config';
+import tools from '../tools';
 
 const FPS = 60;
 const DEBUG = false;
