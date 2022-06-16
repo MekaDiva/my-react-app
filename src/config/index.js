@@ -7,6 +7,7 @@ class Config {
         this.fps = 60;
         this.scene = null;
         this.renderer = null;
+        this.garvityCoef = null;
         this.camera = null;
         this.light = null;
         this.mouse3d = null;
