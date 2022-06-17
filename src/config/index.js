@@ -11,7 +11,6 @@ class Config {
         this.camera = null;
         this.light = null;
         this.mouse3d = null;
-        this.cameraContainer = null;
         this.firstLaunch = true;
         this.physic = {};
         this.iceCreamApi = {};
