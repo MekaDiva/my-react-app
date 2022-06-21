@@ -69,10 +69,10 @@ class Game extends THREE.EventDispatcher {
         // Ground configuration
         const floorTexture = new THREE.TextureLoader().load(pathFloorTexture);
         floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-        floorTexture.repeat.set( 1000, 1000 );
+        floorTexture.repeat.set(1000, 1000);
         floorTexture.anisotropy = 16;
         floorTexture.encoding = THREE.sRGBEncoding;
-        const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture})
+        const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture })
         const floorMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1000, 1000), floorMaterial);
         floorMesh.rotation.x = - Math.PI / 2;
         floorMesh.receiveShadow = true;
@@ -104,11 +104,11 @@ class Game extends THREE.EventDispatcher {
         controls.maxPolarAngle = Math.PI / 2;
         controls.target.set(0, 1, 0);
         controls.update();
-        
+
         // Add the stats ui
         this.stats = new Stats();
         document.body.appendChild(this.stats.dom);
-        
+
         // Add the objectsGroup
         this.objectsGroup = new THREE.Group();
 
@@ -184,11 +184,11 @@ class Game extends THREE.EventDispatcher {
         if (this.indexPosition <= -1) {
             this.indexPosition = 3;
         }
-        gsap.to(this.objectsGroup.position, {duration: 0.5, x: (-3 * this.indexPosition), ease: "back"});
+        gsap.to(this.objectsGroup.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
 
         // Add selection animation
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, {duration: 0.2, y: 1, ease: "power2"});
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, {duration: 0.7, y: 0.5, ease: "bounce"}).delay(0.2);
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
     }
 
     switchRight() {
@@ -198,7 +198,11 @@ class Game extends THREE.EventDispatcher {
         if (this.indexPosition >= totalNumberOfObjects) {
             this.indexPosition = 0;
         }
-        gsap.to(this.objectsGroup.position, {duration: 0.5, x: (-3 * this.indexPosition), ease: "back"});
+        gsap.to(this.objectsGroup.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
+
+        // Add selection animation
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
     }
 }
 
