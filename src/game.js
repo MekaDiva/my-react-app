@@ -52,19 +52,32 @@ class Game extends THREE.EventDispatcher {
         this.scene.fog = new THREE.Fog(0xa0a0a0, 10, 50);
 
         // Light configuration
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
-        hemiLight.position.set(0, 20, 0);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+        hemiLight.color.setHSL(0.6, 1, 0.6);
+        hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+        hemiLight.position.set(0, 50, 0);
         this.scene.add(hemiLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff);
-        dirLight.position.set(3, 10, 10);
-        dirLight.castShadow = true;
-        dirLight.shadow.camera.top = 2;
-        dirLight.shadow.camera.bottom = - 2;
-        dirLight.shadow.camera.left = - 2;
-        dirLight.shadow.camera.right = 2;
-        dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 40;
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.color.setHSL(0.1, 1, 0.95);
+        dirLight.position.set(- 1, 1.75, 1);
+        dirLight.position.multiplyScalar(30);
         this.scene.add(dirLight);
+
+        dirLight.castShadow = true;
+
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+
+        const d = 50;
+
+        dirLight.shadow.camera.left = - d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = - d;
+
+        dirLight.shadow.camera.far = 3500;
+        dirLight.shadow.bias = - 0.0001;
 
         // Ground configuration
         const floorTexture = new THREE.TextureLoader().load(pathFloorTexture);
@@ -79,9 +92,31 @@ class Game extends THREE.EventDispatcher {
         this.scene.add(floorMesh);
 
         // Sky configuration
-        const skyTexture = new THREE.TextureLoader().load(skyFloorTexture);
-        this.scene.background = skyTexture;
-        this.scene.visible = true;
+        // const skyTexture = new THREE.TextureLoader().load(skyFloorTexture);
+        // this.scene.background = skyTexture;
+        // this.scene.visible = true;
+        const vertexShader = document.getElementById( 'vertexShader' ).textContent;
+        const fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
+        const uniforms = {
+            'topColor': { value: new THREE.Color( 0x0077ff ) },
+            'bottomColor': { value: new THREE.Color( 0xffffff ) },
+            'offset': { value: 33 },
+            'exponent': { value: 0.6 }
+        };
+        uniforms[ 'topColor' ].value.copy( hemiLight.color );
+
+        this.scene.fog.color.copy( uniforms[ 'bottomColor' ].value );
+
+        const skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
+        const skyMat = new THREE.ShaderMaterial( {
+            uniforms: uniforms,
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            side: THREE.BackSide
+        } );
+
+        const sky = new THREE.Mesh( skyGeo, skyMat );
+        this.scene.add( sky );
 
         // Renderer configuration
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
