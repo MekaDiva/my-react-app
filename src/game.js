@@ -136,7 +136,7 @@ class Game extends THREE.EventDispatcher {
         }
 
         if (e.key == "d") {
-
+            this.switchRight();
         }
     }
 
