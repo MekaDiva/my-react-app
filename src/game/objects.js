@@ -16,6 +16,7 @@ class Objects extends THREE.EventDispatcher {
         boxMaterial.metalness = 0.5;
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
         boxMesh.position.set(0, 0.5, 0);
+        //Game.scene.add(boxMesh);
         Game.objectsGroup.add(boxMesh);
 
         // Add sphereGeometry
@@ -24,6 +25,7 @@ class Objects extends THREE.EventDispatcher {
         sphereMaterial.metalness = 0.5;
         const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphereMesh.position.set(3, 0.5, 0);
+        //Game.scene.add(sphereMesh);
         Game.objectsGroup.add(sphereMesh);
 
         // Add coneGeometry
@@ -32,6 +34,7 @@ class Objects extends THREE.EventDispatcher {
         coneMaterial.metalness = 0.5;
         const coneMesh = new THREE.Mesh(coneGeometry, coneMaterial);
         coneMesh.position.set(6, 0.5, 0);
+        //Game.scene.add(coneMesh);
         Game.objectsGroup.add(coneMesh);
 
         // Add cylinderGeometry
@@ -40,6 +43,7 @@ class Objects extends THREE.EventDispatcher {
         cylinderMaterial.metalness = 0.5;
         const cylinderMesh = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
         cylinderMesh.position.set(9, 0.5, 0);
+        //Game.scene.add(cylinderMesh);
         Game.objectsGroup.add(cylinderMesh);
 
         Game.scene.add(Game.objectsGroup);

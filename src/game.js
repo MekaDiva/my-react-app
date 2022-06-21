@@ -73,7 +73,6 @@ class Game extends THREE.EventDispatcher {
         floorTexture.anisotropy = 16;
         floorTexture.encoding = THREE.sRGBEncoding;
         const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture})
-        //const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshPhongMaterial({ color: 0x888888, depthWrite: false }));
         const floorMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1000, 1000), floorMaterial);
         floorMesh.rotation.x = - Math.PI / 2;
         floorMesh.receiveShadow = true;
@@ -186,6 +185,10 @@ class Game extends THREE.EventDispatcher {
             this.indexPosition = 3;
         }
         gsap.to(this.objectsGroup.position, {duration: 0.5, x: (-3 * this.indexPosition), ease: "back"});
+
+        // Add selection animation
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, {duration: 0.2, y: 1, ease: "power2"});
+        gsap.to(this.objectsGroup.children[this.indexPosition].position, {duration: 0.7, y: 0.5, ease: "bounce"}).delay(0.2);
     }
 
     switchRight() {
