@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { gsap } from 'gsap';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import {Sky} from "three/examples/jsm/objects/Sky";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import Objects from "game/objects";
 import Ui from "game/ui";
@@ -69,15 +70,15 @@ class Game extends THREE.EventDispatcher {
         dirLight.shadow.mapSize.width = 2048;
         dirLight.shadow.mapSize.height = 2048;
 
-        const d = 50;
+        const d = 10;
 
         dirLight.shadow.camera.left = - d;
         dirLight.shadow.camera.right = d;
         dirLight.shadow.camera.top = d;
         dirLight.shadow.camera.bottom = - d;
 
-        dirLight.shadow.camera.far = 3500;
-        dirLight.shadow.bias = - 0.0001;
+        dirLight.shadow.camera.far = 2500;
+        dirLight.shadow.bias = 0.0001;
 
         // Ground configuration
         const floorTexture = new THREE.TextureLoader().load(pathFloorTexture);
@@ -91,39 +92,13 @@ class Game extends THREE.EventDispatcher {
         floorMesh.receiveShadow = true;
         this.scene.add(floorMesh);
 
-        // Sky configuration
-        // const skyTexture = new THREE.TextureLoader().load(skyFloorTexture);
-        // this.scene.background = skyTexture;
-        // this.scene.visible = true;
-        const vertexShader = document.getElementById( 'vertexShader' ).textContent;
-        const fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
-        const uniforms = {
-            'topColor': { value: new THREE.Color( 0x0077ff ) },
-            'bottomColor': { value: new THREE.Color( 0xffffff ) },
-            'offset': { value: 33 },
-            'exponent': { value: 0.6 }
-        };
-        uniforms[ 'topColor' ].value.copy( hemiLight.color );
-
-        this.scene.fog.color.copy( uniforms[ 'bottomColor' ].value );
-
-        const skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
-        const skyMat = new THREE.ShaderMaterial( {
-            uniforms: uniforms,
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-            side: THREE.BackSide
-        } );
-
-        const sky = new THREE.Mesh( skyGeo, skyMat );
-        this.scene.add( sky );
-
         // Renderer configuration
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
+        this.renderer.toneMapping = THREE.LinearToneMapping;
         document.body.appendChild(this.renderer.domElement);
 
         // Camera
@@ -139,6 +114,43 @@ class Game extends THREE.EventDispatcher {
         controls.maxPolarAngle = Math.PI / 2;
         controls.target.set(0, 1, 0);
         controls.update();
+
+        // Sky configuration
+        // const skyTexture = new THREE.TextureLoader().load(skyFloorTexture);
+        // this.scene.background = skyTexture;
+        // this.scene.visible = true;
+
+        // Add Sky
+        const sky = new Sky();
+        sky.scale.setScalar(450000);
+        this.scene.add(sky);
+
+        var sun = new THREE.Vector3();
+
+        const effectController = {
+            turbidity: 0.3,
+            rayleigh: 0.5,
+            mieCoefficient: 0.002,
+            mieDirectionalG: 0.7,
+            elevation: 45,
+            azimuth: 180,
+            exposure: 0.5,
+        };
+
+        const uniforms = sky.material.uniforms;
+        uniforms[ 'turbidity' ].value = effectController.turbidity;
+        uniforms[ 'rayleigh' ].value = effectController.rayleigh;
+        uniforms[ 'mieCoefficient' ].value = effectController.mieCoefficient;
+        uniforms[ 'mieDirectionalG' ].value = effectController.mieDirectionalG;
+
+        const phi = THREE.MathUtils.degToRad( 90 - effectController.elevation );
+        const theta = THREE.MathUtils.degToRad( effectController.azimuth );
+
+        sun.setFromSphericalCoords( 1, phi, theta );
+
+        uniforms[ 'sunPosition' ].value.copy( sun );
+        
+        this.renderer.toneMappingExposure = effectController.exposure;
 
         // Add the stats ui
         this.stats = new Stats();
