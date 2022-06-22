@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Game from "../game"
+import Game from "../game";
 
 const pathArrowIdle = process.env.PUBLIC_URL + "/img/arrowRightIdle.png";
 const pathArrowOver = process.env.PUBLIC_URL + "/img/arrowRightOver.png";

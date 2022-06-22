@@ -6,16 +6,17 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import Objects from "game/objects";
 import Ui from "game/ui";
 
-const pathFloorTexture = process.env.PUBLIC_URL + "/img/protoGrey.png";
 const skyFloorTexture = process.env.PUBLIC_URL + "/img/sky.jpg";
 
-const FPS = 60;
-const totalNumberOfObjects = 4;
+
 
 class Game extends THREE.EventDispatcher {
     constructor() {
 
         super();
+
+        this.FPS = 60;
+        this.totalNumberOfObjects = 4;
 
         this.init = this.init.bind(this);
         this.keypress = this.keypress.bind(this);
@@ -79,18 +80,6 @@ class Game extends THREE.EventDispatcher {
 
         dirLight.shadow.camera.far = 2500;
         dirLight.shadow.bias = 0.0001;
-
-        // Ground configuration
-        const floorTexture = new THREE.TextureLoader().load(pathFloorTexture);
-        floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-        floorTexture.repeat.set(1000, 1000);
-        floorTexture.anisotropy = 16;
-        floorTexture.encoding = THREE.sRGBEncoding;
-        const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture })
-        const floorMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1000, 1000), floorMaterial);
-        floorMesh.rotation.x = - Math.PI / 2;
-        floorMesh.receiveShadow = true;
-        this.scene.add(floorMesh);
 
         // Renderer configuration
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -171,9 +160,12 @@ class Game extends THREE.EventDispatcher {
         // Init ui in the scene
         Ui.uiInit();
 
+        // Init physics in the scene
+
+
         //START ENGINE
         gsap.ticker.add(this.update);
-        gsap.ticker.fps(FPS);
+        gsap.ticker.fps(this.FPS);
         //this.update();
     }
 
@@ -194,6 +186,9 @@ class Game extends THREE.EventDispatcher {
         // requestAnimationFrame(this.update);
 
         this.stats.update();
+
+        // Update objects in the scene
+        Objects.objectsUpdate();
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -242,7 +237,7 @@ class Game extends THREE.EventDispatcher {
         console.log("Switch right");
 
         this.indexPosition += 1;
-        if (this.indexPosition >= totalNumberOfObjects) {
+        if (this.indexPosition >= this.totalNumberOfObjects) {
             this.indexPosition = 0;
         }
         gsap.to(this.objectsGroup.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
