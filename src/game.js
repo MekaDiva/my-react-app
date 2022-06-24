@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { gsap } from 'gsap';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import {Sky} from "three/examples/jsm/objects/Sky";
+import { Sky } from "three/examples/jsm/objects/Sky";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import Objects from "game/objects";
 import Ui from "game/ui";
+import { Vector3 } from "three";
 
 const skyFloorTexture = process.env.PUBLIC_URL + "/img/sky.jpg";
-
 
 
 class Game extends THREE.EventDispatcher {
@@ -34,7 +34,6 @@ class Game extends THREE.EventDispatcher {
         this.stats = null;
         this.indexPosition = 0;
 
-        this.objectsGroup = null;
     }
 
     init() {
@@ -47,6 +46,26 @@ class Game extends THREE.EventDispatcher {
         document.body.style["background-color"] = "#FFFFFF";
         document.body.style.color = "#fff";
         document.body.style.overflow = "hidden";
+
+        this.initEngine();
+        this.initSky();
+        this.iniUi();
+        this.initGame();
+        this.initEvents();
+        this.debug();
+
+        // Init physics in the scene
+
+
+        //START ENGINE
+        gsap.ticker.add(this.update);
+        gsap.ticker.fps(this.FPS);
+        //this.update();
+    }
+
+
+
+    initEngine() {
 
         // Scene configuration
         this.scene = new THREE.Scene();
@@ -92,7 +111,7 @@ class Game extends THREE.EventDispatcher {
 
         // Camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(5, 5, 5);
+        this.camera.position.set(0, 3, 10);
 
         const axesHelper = new THREE.AxesHelper(3);
         this.scene.add(axesHelper);
@@ -102,13 +121,12 @@ class Game extends THREE.EventDispatcher {
         controls.enableZoom = true;
         controls.maxPolarAngle = Math.PI / 2;
         controls.target.set(0, 1, 0);
-        controls.update();
 
-        // Sky configuration
-        // const skyTexture = new THREE.TextureLoader().load(skyFloorTexture);
-        // this.scene.background = skyTexture;
-        // this.scene.visible = true;
+    }
 
+
+
+    initSky() {
         // Add Sky
         const sky = new Sky();
         sky.scale.setScalar(450000);
@@ -127,26 +145,65 @@ class Game extends THREE.EventDispatcher {
         };
 
         const uniforms = sky.material.uniforms;
-        uniforms[ 'turbidity' ].value = effectController.turbidity;
-        uniforms[ 'rayleigh' ].value = effectController.rayleigh;
-        uniforms[ 'mieCoefficient' ].value = effectController.mieCoefficient;
-        uniforms[ 'mieDirectionalG' ].value = effectController.mieDirectionalG;
+        uniforms['turbidity'].value = effectController.turbidity;
+        uniforms['rayleigh'].value = effectController.rayleigh;
+        uniforms['mieCoefficient'].value = effectController.mieCoefficient;
+        uniforms['mieDirectionalG'].value = effectController.mieDirectionalG;
 
-        const phi = THREE.MathUtils.degToRad( 90 - effectController.elevation );
-        const theta = THREE.MathUtils.degToRad( effectController.azimuth );
+        const phi = THREE.MathUtils.degToRad(90 - effectController.elevation);
+        const theta = THREE.MathUtils.degToRad(effectController.azimuth);
 
-        sun.setFromSphericalCoords( 1, phi, theta );
+        sun.setFromSphericalCoords(1, phi, theta);
 
-        uniforms[ 'sunPosition' ].value.copy( sun );
-        
+        uniforms['sunPosition'].value.copy(sun);
+
         this.renderer.toneMappingExposure = effectController.exposure;
+    }
 
-        // Add the stats ui
-        this.stats = new Stats();
-        document.body.appendChild(this.stats.dom);
 
-        // Add the objectsGroup
-        this.objectsGroup = new THREE.Group();
+    iniUi() {
+        // Init ui in the scene
+        Ui.uiInit();
+    }
+
+
+    initGame() {
+
+
+        this.objects = new Objects();
+        this.objects.addElements([
+            {
+                geometry: new THREE.BoxGeometry(1, 1, 1),
+                color: 0xbf2121,
+                position: new THREE.Vector3(0, 0.5, 0)
+            },
+            {
+                geometry: new THREE.SphereGeometry(0.5, 20, 20),
+                color: 0x307337,
+                position: new THREE.Vector3(3, 0.5, 0)
+            },
+            {
+                geometry: new THREE.ConeGeometry(0.5, 1, 20),
+                color: 0xbf9319,
+                position: new THREE.Vector3(6, 0.5, 0)
+            },
+            {
+                geometry: new THREE.CylinderGeometry(0.5, 0.5, 1, 20),
+                color: 0x2331a8,
+                position: new THREE.Vector3(9, 0.5, 0)
+            }
+        ]);
+
+
+        this.scene.add(this.objects);
+
+
+
+    }
+
+
+
+    initEvents() {
 
         // Add event handlers for the resize of window
         window.addEventListener('resize', this.playableResize, false);
@@ -154,22 +211,20 @@ class Game extends THREE.EventDispatcher {
         // Add event handlers for clicking
         document.addEventListener('keypress', this.keypress, false);
 
-        // Init objects in the scene
-        Objects.objectsInit();
-
-        // Init ui in the scene
-        Ui.uiInit();
-
-        // Init physics in the scene
-
-
-        //START ENGINE
-        gsap.ticker.add(this.update);
-        gsap.ticker.fps(this.FPS);
-        //this.update();
     }
 
+
+
+
+    debug() {
+        // Add the stats ui
+        this.stats = new Stats();
+        document.body.appendChild(this.stats.dom);
+    }
+
+
     keypress(e) {
+        
         if (e.key == "a") {
             this.switchLeft();
         }
@@ -188,9 +243,17 @@ class Game extends THREE.EventDispatcher {
         this.stats.update();
 
         // Update objects in the scene
-        Objects.objectsUpdate();
+        this.objects.update();
 
         this.renderer.render(this.scene, this.camera);
+
+
+
+        // console.log(this.renderer.info.render.triangles + " tri");
+        // console.log(this.renderer.info.render.calls+ " call");
+
+
+
     }
 
     playableResize() {
@@ -220,17 +283,18 @@ class Game extends THREE.EventDispatcher {
     }
 
     switchLeft() {
-        console.log("Switch left");
+        console.log("Switch left")
+    
 
         this.indexPosition -= 1;
         if (this.indexPosition <= -1) {
             this.indexPosition = 3;
         }
-        gsap.to(this.objectsGroup.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
+        gsap.to(this.objects.container.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
 
         // Add selection animation
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
+        gsap.to(this.objects.container.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
+        gsap.to(this.objects.container.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
     }
 
     switchRight() {
@@ -240,12 +304,14 @@ class Game extends THREE.EventDispatcher {
         if (this.indexPosition >= this.totalNumberOfObjects) {
             this.indexPosition = 0;
         }
-        gsap.to(this.objectsGroup.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
+        gsap.to(this.objects.container.position, { duration: 0.5, x: (-3 * this.indexPosition), ease: "back" });
 
         // Add selection animation
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
-        gsap.to(this.objectsGroup.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
+        gsap.to(this.objects.container.children[this.indexPosition].position, { duration: 0.2, y: 1, ease: "power2" });
+        gsap.to(this.objects.container.children[this.indexPosition].position, { duration: 0.7, y: 0.5, ease: "bounce" }).delay(0.2);
     }
+
+
 }
 
 export default new Game()

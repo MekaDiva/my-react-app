@@ -31,7 +31,8 @@ class Ui extends THREE.EventDispatcher {
         buttonLeft.onmousedown = function() { 
             buttonLeft.src = pathArrowPress;
         }
-        buttonLeft.onmouseup = function() {
+        buttonLeft.onmouseup = function(e) {
+            console.log(e);
             buttonLeft.src = pathArrowOver;
             Game.switchLeft();
         }
